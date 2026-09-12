@@ -709,3 +709,100 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
   .timeline li { grid-template-columns: 1fr; gap: 0.2rem; }
 }
 
+/* ---------- Contato ---------- */
+
+/* Duas colunas em tela larga. Empilhados, a lista e o formulário usavam
+   metade da largura e deixavam a outra metade vazia. */
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+@media (max-width: 52rem) {
+  .contact-grid { grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+}
+
+.contacts {
+  margin: 0;
+  font-size: 0.88rem;
+}
+.contacts > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: var(--s2);
+  padding: 0.35rem 0;
+}
+.contacts dt { color: var(--muted); }
+.contacts dt::after { content: ':'; }
+.contacts dd { margin: 0; }
+
+@media (max-width: 40rem) {
+  .contacts > div { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* ---------- Formulário ---------- */
+
+.form {
+  display: grid;
+  gap: var(--s2);
+  padding: var(--s3);
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.form h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: var(--s1); }
+.form h3::before { content: '$ '; color: var(--accent); }
+
+/* display:block e não grid: como item de grid o ::before ganharia uma
+   linha própria e flutuaria acima do label em vez de vir antes dele. */
+.form label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.form label::before { content: '> '; color: var(--accent); }
+.form label input, .form label textarea { margin-top: 0.3rem; }
+
+.form input, .form textarea {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0.5rem 0.65rem;
+  width: 100%;
+  resize: vertical;
+  caret-color: var(--accent);
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
+}
+.form input:focus, .form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* :user-invalid marca o campo só DEPOIS da pessoa mexer nele. O :invalid
+   pintaria tudo de vermelho já no carregamento. */
+.form input:user-invalid, .form textarea:user-invalid { border-color: var(--danger); }
+
+.form button {
+  justify-self: start;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 0.45rem 1.2rem;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  transition: background-color .15s var(--ease), color .15s var(--ease);
+}
+.form button:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); }
+.form button:disabled { opacity: 0.45; cursor: wait; }
+
+.form-status { font-size: 0.8rem; margin: 0; min-height: 1.6em; }
+.form-status[data-status='sent']   { color: var(--accent); }
+.form-status[data-status='sent']::before   { content: '✓ '; }
+.form-status[data-status='failed'] { color: var(--danger); }
+.form-status[data-status='failed']::before { content: '✗ '; }
+

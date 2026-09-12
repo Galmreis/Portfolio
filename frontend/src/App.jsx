@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { site, nav, ui, languages, stack, projects, timeline } from './content.js'
+import { site, nav, ui, languages, stack, projects, timeline, contacts } from './content.js'
 import { coverFor } from './ascii.js'
 import { useActiveSection, Headline, TypeOut, useParallax } from './motion.jsx'
 import Terminal from './Terminal.jsx'
+import ContactForm from './ContactForm.jsx'
 
 function remember(key, value) {
   try {
@@ -176,6 +177,27 @@ function Timeline({ lang, t }) {
   )
 }
 
+function Contact({ t }) {
+  return (
+    <section id="contact" className="section">
+      <Title number="04">{t.contact}</Title>
+      <div className="contact-grid">
+        <dl className="contacts">
+          {contacts.map((c) => (
+            <div key={c.key}>
+              <dt>{t[c.key] || c.key}</dt>
+              <dd>
+                <a href={c.href}>{c.value}</a>
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <ContactForm t={t} />
+      </div>
+    </section>
+  )
+}
+
 function Nav({ lang, setLang, theme, flipTheme, t }) {
   const active = useActiveSection(nav)
 
@@ -234,6 +256,7 @@ export default function App() {
         <Stack lang={lang} t={t} />
         <Projects lang={lang} t={t} />
         <Timeline lang={lang} t={t} />
+        <Contact t={t} />
       </main>
     </>
   )
