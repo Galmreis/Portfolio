@@ -380,3 +380,129 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
 }
 @keyframes blink { 50% { opacity: 0; } }
 
+/* ---------- O terminal do hero ---------- */
+
+.term {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  /* Alto o bastante para o `neofetch` inteiro do boot, baixo o bastante
+     para não empurrar o conteúdo de verdade para fora da primeira tela. */
+  height: 24rem;
+  overflow: hidden;
+  transition: border-color .2s var(--ease);
+}
+.term:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+
+/* Moldura de janela. Decorativa, então aria-hidden no JSX. */
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 0.4rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+  flex: none;
+}
+.term-dots { display: flex; gap: 0.3rem; }
+.term-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.term-dots i:first-child { background: color-mix(in srgb, var(--accent) 75%, transparent); }
+.term-title { font-size: 0.7rem; color: var(--muted); }
+
+/* Só aparece enquanto o terminal digita sozinho, para ninguém achar que
+   foi coisa que ele fez. */
+.term-demo {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+.term-demo::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* Animação rodando ganha o glow; desenho parado não. Assim dá para ver
+   que está se mexendo até num print. */
+.term-art.is-live { text-shadow: var(--glow) color-mix(in srgb, var(--accent) 35%, transparent); }
+
+/* A única região que rola além da própria página. */
+.term-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s2);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.term-line { margin: 0; white-space: pre-wrap; word-break: break-word; }
+.term-line.is-dim { color: var(--muted); }
+.term-line .prompt { margin-right: 0.35rem; }
+
+.term-table { margin: 0 0 0.4rem; }
+.term-table > div { display: grid; grid-template-columns: 9rem 1fr; gap: 0.5rem; }
+.term-table dt { color: var(--value); }
+.term-table dd { margin: 0; color: var(--ink); word-break: break-word; }
+
+/* Arte ASCII não pode quebrar linha: desenho quebrado é desenho estragado.
+   Então ele rola para o lado dentro da própria caixa. */
+.term-art {
+  margin: 0.3rem 0;
+  font-size: 0.62rem;
+  line-height: 1.05;
+  color: var(--accent);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* A cara do neofetch é o logo AO LADO dos dados. Nessa coluna, a arte no
+   tamanho normal mais a tabela estoura e o flex-wrap empilha os dois, que
+   é justo o que se quer evitar. Dentro do fetch a arte vai menor. */
+.term-fetch { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: flex-start; }
+.term-fetch .term-art { font-size: 0.42rem; flex: none; }
+.term-fetch .term-table { flex: 1 1 11rem; }
+.term-fetch .term-table > div { grid-template-columns: 5.5rem 1fr; }
+
+/* A linha viva do prompt, sempre a última do log. */
+.term-input { display: flex; align-items: baseline; gap: 0.35rem; }
+.term-input input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  caret-color: var(--accent);
+}
+.term-input input:focus { outline: none; }
+.term-input input::placeholder { color: var(--muted); opacity: 0.7; }
+
+/* Abaixo dessa largura o logo e a tabela empilhariam, e só o desenho já
+   fica mais alto que a resposta que ele decora. Um neofetch de verdade
+   também derruba o logo em terminal estreito. O comando `art` continua
+   desenhando o mesmo logo em tamanho cheio quando pedido. */
+@media (max-width: 62rem) {
+  .term { height: 22rem; }
+  .term-fetch .term-art { display: none; }
+}
+
+/* Tela estreita recebe um prompt curto na linha VIVA, como um PS1 de
+   verdade se encurta: nessa largura o `reis@portfolio:~$` inteiro comia a
+   linha e cortava a dica no meio. No log o prompt longo fica. */
+@media (max-width: 34rem) {
+  .term-input .prompt { font-size: 0; }
+  .term-input .prompt::after { content: '$'; font-size: 0.78rem; }
+}
+

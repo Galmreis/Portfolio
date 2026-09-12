@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { site, nav, ui, languages } from './content.js'
 import { useActiveSection, Headline, TypeOut, useParallax } from './motion.jsx'
+import Terminal from './Terminal.jsx'
 
 function remember(key, value) {
   try {
@@ -61,6 +62,8 @@ function Hero({ lang }) {
           <a href={`mailto:${site.email}`}>{site.email}</a>
         </p>
       </div>
+
+      <Terminal lang={lang} />
     </header>
   )
 }
