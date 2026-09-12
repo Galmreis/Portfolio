@@ -282,3 +282,101 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
   .nav-links + .theme { margin-left: auto; }
 }
 
+
+/* ---------- Hero ---------- */
+
+/* Padding de baixo pequeno porque a primeira seção já põe o --s5 dela em
+   cima. Dois paddings inteiros seguidos viram buraco, não respiro. */
+.hero {
+  padding: var(--s5) 0 var(--s2);
+  display: grid;
+  /* minmax(0, 1fr) e não 1fr: o mínimo padrão de uma track é auto, e o
+     <pre> de arte ASCII empurraria a coluna para fora da página em vez
+     de rolar por dentro. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+.hero-words { min-width: 0; }
+
+@media (max-width: 62rem) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+}
+
+.hero-cmd {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 var(--s2);
+}
+
+.hero-title {
+  /* --scroll vem do useParallax: o headline sobe um pouco mais rápido
+     que a página. */
+  transform: translateY(calc(var(--scroll, 0) * -0.04px));
+  font-size: clamp(1.7rem, 4.6vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  max-width: 18ch;
+  margin-bottom: var(--s3);
+}
+
+/* O <em> do content.js é a metade destacada da frase. Usa background +
+   box-decoration-break e não um retângulo posicionado, para quebra em duas
+   linhas dar uma caixa POR LINHA. */
+.hero-title em {
+  font-style: normal;
+  color: var(--accent);
+  text-shadow: var(--glow) color-mix(in srgb, var(--accent) 40%, transparent);
+  padding: 0 0.15em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--accent) 13%, transparent),
+    color-mix(in srgb, var(--accent) 13%, transparent)
+  );
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  animation: mark .6s var(--ease) 1.1s forwards;
+}
+@keyframes mark { to { background-size: 100% 100%; } }
+
+/* Entrada palavra por palavra: o span de fora corta, o de dentro sobe.
+   Por isso o splitIntoWords escreve dois spans. */
+.word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.08em; }
+.word-in { display: inline-block; animation: word-up .55s var(--ease) both; }
+@keyframes word-up {
+  from { transform: translateY(105%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.hero-sub {
+  max-width: var(--prose);
+  color: var(--ink);
+  margin: 0 0 var(--s3);
+}
+
+/* O typewriter, em três camadas (ver TypeOut no motion.jsx). A cópia
+   invisível da frase inteira é o que segura a altura, nos dois idiomas e
+   em qualquer largura. Um min-height só poderia estar certo para um caso. */
+.type { position: relative; }
+.type-ghost { visibility: hidden; }
+.type-live { position: absolute; inset: 0; }
+/* O prompt pertence às duas camadas, senão o texto digitado começa um
+   caractere à esquerda do espaço reservado. */
+.type-ghost::before,
+.type-live::before { content: '> '; color: var(--accent); }
+
+/* Bloco piscando, do jeito que um terminal desenha. */
+.caret {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  margin-left: 1px;
+  background: var(--accent);
+  vertical-align: -0.18em;
+  box-shadow: var(--glow) color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+

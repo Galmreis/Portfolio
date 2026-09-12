@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { site, nav, ui, languages } from './content.js'
-import { useActiveSection } from './motion.jsx'
+import { useActiveSection, Headline, TypeOut, useParallax } from './motion.jsx'
 
 function remember(key, value) {
   try {
@@ -41,6 +41,27 @@ function ThemeToggle({ theme, flipTheme, t }) {
     <button className="theme" type="button" onClick={flipTheme} aria-label={label} title={label}>
       --{theme}
     </button>
+  )
+}
+
+function Hero({ lang }) {
+  const s = site[lang]
+  return (
+    <header className="hero" id="top">
+      <div className="hero-words">
+        <p className="hero-cmd" aria-hidden="true">
+          <span className="prompt">{site.brand.toLowerCase()}@portfolio</span>
+          <span className="path">:~</span>
+          <span className="prompt">$</span> whoami
+        </p>
+        <Headline html={s.headline} />
+        <TypeOut className="hero-sub" text={s.intro} />
+        <p className="hero-meta">
+          <span>{s.location}</span>
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+        </p>
+      </div>
+    </header>
   )
 }
 
@@ -90,12 +111,14 @@ export default function App() {
     remember('theme', next)
   }
 
+  useParallax()
+
   const t = ui[lang]
 
   return (
     <>
       <Nav lang={lang} setLang={setLang} theme={theme} flipTheme={flipTheme} t={t} />
-      <main id="top">{site[lang].intro}</main>
+      <Hero lang={lang} />
     </>
   )
 }
