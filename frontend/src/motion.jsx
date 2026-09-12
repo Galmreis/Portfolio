@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Lido toda vez em vez de cacheado, porque a pessoa pode mudar a
-// configuração com a aba aberta.
+
 export const stillPlease = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-// O headline é HTML por causa do <em>, então não dá para quebrar com um
-// .map. Isso percorre os nós de texto e embrulha cada palavra em dois
-// spans: o de fora corta, o de dentro sobe.
+// aqui toda palavra dentro do headline principal vai ganhar o efeito de movimento do treewalker.
 function splitIntoWords(root) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
   const textNodes = []
@@ -48,8 +45,8 @@ export function Headline({ html }) {
   return <h1 className="hero-title" ref={ref} />
 }
 
-// O texto visível é aria-hidden e a frase inteira fica em um span só para
-// leitor de tela. Senão ele anuncia cada palavra pela metade.
+// o texto visível é aria-hidden e a frase inteira fica em um span só para
+// leitor de tela. caso contrário ele anuncia cada palavra pela metade e quebra em alguns formatos.
 export function TypeOut({ text, className, speed = 16, delay = 500 }) {
   const [shown, setShown] = useState('')
 
@@ -76,9 +73,6 @@ export function TypeOut({ text, className, speed = 16, delay = 500 }) {
 
   const done = shown.length === text.length
 
-  // Três camadas no mesmo parágrafo: a frase inteira para leitor de tela,
-  // uma cópia invisível que dá a altura ao parágrafo, e o texto crescendo
-  // por cima da invisível.
   return (
     <p className={`type ${className}`}>
       <span className="sr-only">{text}</span>
@@ -112,10 +106,6 @@ export function useParallax() {
 }
 
 
-// Devolve o id da seção que está cruzando o meio da tela. O rootMargin
-// encolhe a área observada para uma faixa central: a seção só conta como
-// atual quando é o que você está lendo, não quando o primeiro pixel dela
-// aparece.
 export function useActiveSection(ids) {
   const [active, setActive] = useState('')
 
@@ -138,9 +128,6 @@ export function useActiveSection(ids) {
   return active
 }
 
-// Elemento com data-reveal começa escondido (styles.css) e ganha .is-in na
-// primeira vez que entra na tela. IntersectionObserver não custa nada entre
-// as interseções; listener de scroll rodaria a cada pixel.
 export function useReveal(deps) {
   useEffect(() => {
     const targets = [...document.querySelectorAll('[data-reveal]:not(.is-in)')]
@@ -166,9 +153,8 @@ export function useReveal(deps) {
   }, deps)
 }
 
-// As letras embaralham antes de assentar. Roda na montagem, e no hover só
-// onde `onHover` pedir.
 const JUNK = '!<>-_\\/[]{}—=+*^?#________'
+// função scramble, onde gera o efeito inicial de letras embaralhadas no menu e nos título de seção.
 
 export function Scramble({ text, className, as: Tag = 'span', onHover = false }) {
   const [shown, setShown] = useState(text)
@@ -211,10 +197,10 @@ export function Scramble({ text, className, as: Tag = 'span', onHover = false })
   )
 }
 
-// Cursor customizado: um ponto que segue o ponteiro e um anel que fica um
-// pouco atrás. Tudo escrito num transform só por quadro -- nunca usar
-// `rotate`/`scale` do CSS aqui, porque eles compõem ANTES do `transform`
-// escrito por JS e giram a própria translação, jogando o cursor pra fora.
+
+// notas pois essa foi difícil:
+// no css renderiza um cursor none, já que estou usando um personalizado
+// essa função renderiza dois elementos por cima da página, sincronizando e trackeado a posição do mouse do usuário na página.
 export function Cursor() {
   useEffect(() => {
     if (stillPlease() || !window.matchMedia('(pointer: fine)').matches) return
@@ -226,6 +212,7 @@ export function Cursor() {
     document.body.append(dot, ring)
     document.body.classList.add('has-cursor')
 
+    // centraliza o nosso "ponteiro" inicial no centro da página, pra não começar com undefined e só reage no primeiro movimento do mouse do usuário
     let x = innerWidth / 2
     let y = innerHeight / 2
     let rx = x
@@ -235,7 +222,6 @@ export function Cursor() {
     let spin = 0
     let wantSpin = 0
     let raf = 0
-
     const onMove = (e) => {
       x = e.clientX
       y = e.clientY
@@ -245,9 +231,12 @@ export function Cursor() {
       wantSpin = hot ? 45 : 0
     }
 
+
     const onLeave = () => { dot.style.opacity = ring.style.opacity = '0' }
     const onEnter = () => { dot.style.opacity = ring.style.opacity = '1' }
 
+    // aqui entra o delay do anel ao redor do cursor. onde entra a parte da transição suave que tem do cursor quando ele passa por cima de algo clicável ou navega na página
+    //junto da sincronização dos dois elementos acontece. pegando o x e y (vertical e horizontal do mouse) e trackeando aqui, usando as variaveis x, y, rx e ry que foram definidas mais pra cima.
     const loop = () => {
       rx += (x - rx) * 0.18
       ry += (y - ry) * 0.18
@@ -281,7 +270,7 @@ export function Cursor() {
   return null
 }
 
-// Escreve um número de 0 a 1 numa variável CSS e deixa o CSS desenhar a
+// escreve um número de 0 a 1 numa variável CSS e deixa o CSS desenhar a
 // barra de progresso.
 export function useScrollProgress() {
   useEffect(() => {

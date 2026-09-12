@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { site } from './content.js'
 
-// Validação vem do próprio navegador, via `required` e `type="email"`.
-// Sem biblioteca de formulário.
+// validação vem do próprio navegador, via `required` e `type="email"`.
+// não tem biblioteca de formulário.
 
 export default function ContactForm({ t }) {
   // 'idle' | 'sending' | 'sent' | 'failed'
@@ -12,8 +12,7 @@ export default function ContactForm({ t }) {
     event.preventDefault() // segura o reload padrão do navegador
     setStatus('sending')
 
-    // FormData lê pelo atributo `name`, então não precisa de um useState
-    // por input.
+
     const data = Object.fromEntries(new FormData(event.target))
 
     try {

@@ -3,29 +3,16 @@ import { site, stack, projects, contacts, nav, ui, terminal, machine, timeline, 
 import { art, artNames, animations } from './ascii.js'
 import { stillPlease } from './motion.jsx'
 
-// Um estado guarda a lista do que já aconteceu (`lines`), outro guarda o
-// que a pessoa está digitando (`value`). Comando nenhum desenha nada: ele
-// devolve linhas e o React desenha. Por isso dá para testar os comandos sem
-// navegador e nenhum deles toca no DOM.
-// Cada linha é um objeto com `kind`, e o renderizador faz switch nisso.
 
-// Troca {cmd} / {arg} numa string do content.js. Manter o placeholder na
-// frase deixa cada idioma pôr o valor onde a gramática dele pede.
 const fill = (template, values) =>
   Object.entries(values).reduce((out, [k, v]) => out.replaceAll(`{${k}}`, v), template)
 
-// Atalhos para montar linha de saída.
+
 const out = (text) => ({ kind: 'out', text })
 const dim = (text) => ({ kind: 'dim', text })
 const table = (rows) => ({ kind: 'table', rows })
-// Para o comando, animado e parado são a mesma coisa: desenha o que
-// existir com aquele nome.
-const drawing = (name) => ({ kind: animations[name] ? 'anim' : 'art', name })
 
-// Um comando é (args, context) -> array de linhas. O `context` leva o
-// idioma e os dicionários, mais os dois efeitos colaterais que um terminal
-// pode ter: limpar a si mesmo e rolar a página. Esses dois entram pelo
-// context em vez de serem chamados direto, para o teste passar falsos.
+const drawing = (name) => ({ kind: animations[name] ? 'anim' : 'art', name })
 
 const commands = {
   help: (args, { t }) => [
@@ -33,9 +20,7 @@ const commands = {
     table(t.help),
   ],
 
-  // De propósito não é o site.intro: aquele parágrafo já está sendo
-  // digitado na coluna ao lado, e repetir deixava o hero dizendo a mesma
-  // coisa duas vezes. Aqui sai o que é verdade agora, lido da timeline.
+
   whoami: (args, { t, lang }) => [
     out(`${site.name} — ${t.role}`),
     table([
@@ -63,8 +48,7 @@ const commands = {
     },
   ],
 
-  // `nav` é a lista de ids das seções, então isso nunca desencontra da
-  // página de verdade.
+
   ls: (args, { lang }) => [
     out(nav.map((id) => `${id}/`).join('   ')),
     dim(nav.map((id) => ui[lang][id]).join('   ')),
@@ -106,10 +90,9 @@ const commands = {
   exit: (args, { t }) => [out(t.exit)],
 }
 
-// Nomes que alguém pode digitar querendo a mesma coisa.
+// comandos que alguém pode digitar querendo a mesma coisa.
 const aliases = { cat: 'whoami', about: 'whoami', dir: 'ls', quit: 'exit', man: 'help', '?': 'help' }
 
-// Exportado para poder ser testado sem renderizar nada.
 export function run(input, context) {
   const [raw, ...args] = input.trim().split(/\s+/)
   const name = aliases[raw.toLowerCase()] || raw.toLowerCase()
@@ -118,11 +101,10 @@ export function run(input, context) {
   return command(args, context)
 }
 
-// Sozinho, o terminal digita isso para quem nunca clica ver que ele é
-// vivo. São comandos, não texto, então não traduz. Para de vez no primeiro
-// sinal de gente de verdade e nunca disputa o teclado.
+
 const DEMO_SCRIPT = ['art rain', 'whoami', 'projects']
 
+// tempo de duração da demo se o usuário não digitar nada.
 const DEMO = {
   wait: 900,    // antes da primeira tecla
   key: 55,      // entre caracteres
@@ -130,15 +112,12 @@ const DEMO = {
   read: 2600,   // quanto tempo a resposta fica antes do próximo comando
 }
 
-// Componente próprio para os re-renders baterem em um <pre> só, e não no
-// log inteiro: 14fps redesenhando toda linha acima seria desperdício.
 function AnimatedArt({ name }) {
   const { fps, frame } = animations[name]
   const [step, setStep] = useState(0)
 
   useEffect(() => {
-    // Com movimento reduzido o desenho ainda aparece, só parado no
-    // primeiro quadro.
+
     if (stillPlease()) return
     const id = setInterval(() => setStep((n) => n + 1), 1000 / fps)
     return () => clearInterval(id)
@@ -151,14 +130,13 @@ function AnimatedArt({ name }) {
   )
 }
 
-// ---------- o componente ----------
+// ---------- o componente do terminal em si ----------
 
 export default function Terminal({ lang }) {
   const t = terminal[lang]
   const [lines, setLines] = useState([])
   const [value, setValue] = useState('')
-  // Histórico, mais novo por último, andado com as setas. `cursor` é -1
-  // quando você está digitando algo novo em vez de navegando.
+  // aqui é onde fica a lógica do histórico.
   const [history, setHistory] = useState([])
   const [cursor, setCursor] = useState(-1)
 
@@ -167,14 +145,6 @@ export default function Terminal({ lang }) {
 
   const prompt = `${site.brand.toLowerCase()}@portfolio:~$`
 
-  // O boot roda de novo na troca de idioma, e por isso reseta o log
-  // inteiro em vez de acrescentar: meia tela em inglês e meia em português
-  // seria pior que recomeçar. Ele termina rodando `neofetch` sozinho, para
-  // o quadro nunca ser uma caixa vazia esperando ser descoberta.
-  //
-  // `follow` diz se o log acompanha a saída para baixo. Só o exec() liga
-  // isso, então o boot é a única coisa que não se rola para fora da vista
-  // antes de alguém ler.
   const follow = useRef(false)
 
   useEffect(() => {
@@ -185,15 +155,13 @@ export default function Terminal({ lang }) {
     ])
   }, [t, lang])
 
-  // Só esse elemento rola. A página nunca, senão o leitor é arrastado.
   useEffect(() => {
     const log = logRef.current
     if (!log || !follow.current) return
     log.scrollTop = log.scrollHeight
   }, [lines])
 
-  // Submit de verdade e demo passam os dois por aqui, então existe uma
-  // definição só do que um comando faz e o demo não desencontra.
+
   const exec = useCallback(
     (input, { record = true } = {}) => {
       if (!input) return
@@ -213,9 +181,7 @@ export default function Terminal({ lang }) {
         go: (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }),
       }
 
-      // Primeiro o eco do comando, depois o que ele devolveu. O `clear`
-      // esvazia o log dentro do run(), então o eco precisa vir depois:
-      // um setLines com os dois, não duas chamadas.
+
       const produced = run(input, context)
       setLines((prev) => {
         const base = input.trim().toLowerCase() === 'clear' ? [] : prev
@@ -235,27 +201,21 @@ export default function Terminal({ lang }) {
     [value, exec],
   )
 
-  // `stopped` é ref, não state: o loop rodando precisa ver o valor novo na
-  // hora, e um setState não chegaria na closure em que ele já está.
+
   const stopped = useRef(false)
   const [demoOn, setDemoOn] = useState(false)
 
-  // Chamado no primeiro clique, tecla ou foco de verdade. Idempotente de
-  // propósito, porque dispara de três eventos diferentes.
   const stopDemo = useCallback(() => {
     if (stopped.current) return
     stopped.current = true
     setDemoOn(false)
-    setValue('')   // joga fora o que o demo estava digitando pela metade
+    setValue('')
   }, [])
 
   useEffect(() => {
-    // Digitar sozinho é decoração. Quem pediu movimento reduzido recebe o
-    // terminal parado no prompt.
+
     if (stillPlease() || stopped.current) return
 
-    // Cada execução do efeito tem a própria flag: o StrictMode monta duas
-    // vezes em dev e os dois loops digitariam um por cima do outro.
     let cancelled = false
     const timers = []
     const sleep = (ms) => new Promise((done) => timers.push(setTimeout(done, ms)))
@@ -268,8 +228,6 @@ export default function Terminal({ lang }) {
       for (const [index, command] of DEMO_SCRIPT.entries()) {
         if (!alive()) return
 
-        // Limpa entre comandos para cada resposta aparecer inteira. Shell
-        // de verdade não faria isso, mas aqui a graça é ver a saída toda.
         if (index > 0) setLines([])
 
         for (let i = 1; i <= command.length; i += 1) {
@@ -281,8 +239,6 @@ export default function Terminal({ lang }) {
         await sleep(DEMO.beforeEnter)
         if (!alive()) return
         setValue('')
-        // record: false, porque os comandos do demo não são de quem visita
-        // e não podem cair no histórico das setas.
         exec(command, { record: false })
         await sleep(DEMO.read)
       }
@@ -299,7 +255,7 @@ export default function Terminal({ lang }) {
     }
   }, [t, exec])
 
-  // As setas andam no histórico, como num shell de verdade.
+  // config de histórico, igual um terminal mesmo.
   function onKeyDown(event) {
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
     if (!history.length) return
@@ -315,13 +271,11 @@ export default function Terminal({ lang }) {
   }
 
   return (
-    // Clicar em qualquer lugar do quadro foca o input, que é o que clicar
-    // num terminal faz. O <form> continua sendo o controle de verdade.
+    // foca no terminal quando clicado, pra não ser mais um elemento estático dentro da página.
     <div
       className="term"
       onClick={() => inputRef.current?.focus()}
-      // Fase de captura, para o demo parar antes da tecla chegar no input
-      // e os dois brigarem pelo valor.
+
       onPointerDownCapture={stopDemo}
       onKeyDownCapture={stopDemo}
       onFocusCapture={stopDemo}
@@ -360,8 +314,6 @@ export default function Terminal({ lang }) {
   )
 }
 
-// Um switch, um caso por tipo de linha. Tipo novo de saída é um caso aqui
-// mais um atalho lá em cima.
 function Line({ line, prompt }) {
   switch (line.kind) {
     case 'in':
@@ -392,9 +344,7 @@ function Line({ line, prompt }) {
     case 'anim':
       return <AnimatedArt name={line.name} />
 
-    // O logo do Arch ao lado das linhas, como o neofetch faz. Dois
-    // elementos num flex, para tela estreita empilhar em vez de entortar
-    // o desenho.
+//renderiza os elementos dentro de um display flex pra não quebrar a arte ascii
     case 'fetch':
       return (
         <div className="term-fetch">

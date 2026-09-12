@@ -70,7 +70,7 @@ function Hero({ lang }) {
   )
 }
 
-// Cabeçalho de seção: número + nome, usado pelas quatro.
+// header de seção: número + nome, usado pelas quatro.
 function Title({ number, children }) {
   return (
     <h2 className="section-title">

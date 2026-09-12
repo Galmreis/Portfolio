@@ -1,11 +1,7 @@
-// Todo o texto do site fica aqui. O que é igual nos dois idiomas
-// (links, anos, tags, ids) é escrito uma vez só; só a prosa é duplicada.
 
-// A ordem aqui é a ordem dos botões no seletor de idioma.
 export const languages = ['en', 'pt']
 
-// Títulos de seção, labels do nav e do formulário. O nav e os headings
-// usam as mesmas chaves, então renomear uma seção é em um lugar só.
+
 export const ui = {
   en: {
     stack: 'Stack',
@@ -51,24 +47,25 @@ export const ui = {
     failed: 'O formulário não foi. Me escreve direto:',
     footer: 'Feito na mão, atualizado enquanto aprendo.',
     langLabel: 'Idioma',
+    // mesma coisa, só que em português
     themeToDark: 'Mudar para o tema escuro',
     themeToLight: 'Mudar para o tema claro',
     title: 'Reis — Desenvolvimento Web',
   },
 }
 
-// Cada id precisa bater com uma chave em `ui` e com o id de uma <section>
+// cada id precisa bater com uma chave em `ui` e com o id de uma <section>
 // no App.jsx. É isso que faz os links âncora funcionarem.
 export const nav = ['stack', 'projects', 'timeline', 'contact']
 
 export const site = {
-  // Iguais nos dois idiomas
+  // mesma coisa nos dois idiomas
   brand: 'REIS', // aparece na barra de navegação
   name: 'Reis',
   email: 'guilhermealmreis@gmail.com',
 
   en: {
-    // O que estiver dentro do <em> recebe o destaque colorido.
+    // o que tiver dentro do <em> recebe o destaque colorido.
     headline: 'Learning to build things <em>that stay useful.</em>',
     intro:
       'Web Developer. Always expanding my horizons and trying new things. ' +
@@ -84,7 +81,7 @@ export const site = {
   },
 }
 
-// Separar o que eu uso de verdade do que ainda estou aprendendo.
+// minhas stacks, onde tá separado em aprendendo, usando e ferramentas
 export const stack = [
   {
     items: ['JavaScript', 'React', 'Vite', 'HTML', 'CSS', 'Git'],
@@ -101,13 +98,10 @@ export const stack = [
     en: { group: 'Tools' },
     pt: { group: 'Ferramentas' },
   },
-  
+
 ]
 
-// `link`, `repo` e `image` são opcionais. Sem `image` o card desenha uma
-// capa gerada, então print faltando não deixa buraco no layout.
-// Screenshot vai em `frontend/public/projects/` e entra aqui como
-// `/projects/<arquivo>`.
+// link, imagem e repo. ainda vou tirar print dos projetos. alguns projetos estão ainda sendo desenvolvidos como a TyphoonWiki, então não vai ter muita coisa mesmo.
 export const projects = [
   {
     year: '2026',
@@ -140,28 +134,6 @@ export const projects = [
   },
   {
     year: '2026',
-    tags: ['React', 'Hooks'],
-    link: '',
-    repo: '',
-    image: '',
-    en: {
-      name: 'Mental Math Trainer',
-      summary: 'Timed mental arithmetic drills. A round of questions against the clock.',
-      learned:
-        'How state and timers get along in React: keeping a countdown running ' +
-        'without blocking the interface, and clearing it properly when the ' +
-        'round ends.',
-    },
-    pt: {
-      name: 'Mental Math Trainer',
-      summary: 'Exercícios de cálculo mental cronometrados. Uma rodada de questões contra o relógio.',
-      learned:
-        'Como estado e temporizadores convivem em React: manter uma contagem ' +
-        'rodando sem travar a interface, e limpá-la direito quando a rodada acaba.',
-    },
-  },
-  {
-    year: '2026',
     tags: ['React', 'Node.js', 'CSS', 'JavaScript'],
     link: '',
     repo: 'https://github.com/Galmreis/TyphoonWiki',
@@ -188,8 +160,7 @@ export const projects = [
 ]
 
 
-// Mais recente primeiro. `period` fica dentro de cada idioma porque alguns
-// têm palavra ("now" / "agora"), não só ano.
+// do mais recente ao mais antigo, incluindo cursos e outros empregos que tive. title = nome da função, period = tempo, text = descrição do que eu fazia naquele lugar, etc.
 export const timeline = [
   {
     id: 'busqy',
@@ -246,21 +217,6 @@ export const timeline = [
         'com projetos e tarefas usando Java 21, documentação em Swagger e consumo de API, com ferramentas modernas de controle de versão como Git.',
     },
   },
-  {
-    id: 'first-project',
-    en: {
-      period: '2024 — 2025',
-      title: 'First project shipped',
-      where: 'Personal',
-      text: 'First time someone who was not me used something I wrote.',
-    },
-    pt: {
-      period: '2024 — 2025',
-      title: 'Primeiro projeto publicado',
-      where: 'Pessoal',
-      text: 'Primeira vez que alguém que não era eu usou algo que eu escrevi.',
-    },
-  },
 ]
 
 // A label vem de `ui` para traduzir; value e href são iguais nos dois.
@@ -270,7 +226,9 @@ export const contacts = [
   { key: 'LinkedIn', value: '/guilhermeareiss', href: 'https://linkedin.com/in/guilhermeareiss' },
 ]
 
-// Terminal do hero. Os comandos não ficam aqui: `ls` e `cd` são comandos,
+// -- Terminal --
+
+// Os comandos não ficam aqui: `ls` e `cd` são comandos,
 // não texto, e não se traduz. Só a resposta depende do idioma.
 // {cmd} e {arg} são placeholders que o Terminal.jsx troca, para cada idioma
 // poder pôr o valor onde a frase pede.
@@ -282,7 +240,7 @@ export const machine = {
   os: 'Arch Linux',
   shell: 'bash',
   editor: 'VS Code',
-  wm: 'KDE Plasma',
+  wm: 'Wayfire',
 }
 
 export const terminal = {
