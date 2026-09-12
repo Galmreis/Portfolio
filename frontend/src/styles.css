@@ -1,7 +1,184 @@
-* {
-  box-sizing: border-box;
+/* Skin terminal / CRT. Mudar uma variável aqui embaixo muda o site todo.
+
+   Três regras seguram o estilo:
+     1. Uma fonte só. Terminal não tem segunda fonte.
+     2. Cor é informação: accent = ativo, value = valor ou link,
+        muted = label.
+     3. A camada CRT fica por cima de tudo e nunca pode atrapalhar a
+        leitura.
+
+   O escuro é o tema principal; o claro mais abaixo é o override. Qual
+   está ligado é decidido pelo data-theme no <html>, escrito pelo script
+   inline do index.html antes do primeiro paint. */
+
+:root {
+  /* Faz o navegador desenhar as partes dele (scrollbar, controles de
+     formulário) no mesmo tema que o nosso. */
+  color-scheme: dark;
+
+  /* ---- Cores (escuro: o design de verdade) ---- */
+  --paper:  #0a0c11;  /* quase preto puxando azul, para segurar o laranja */
+  --panel:  #10131a;  /* superfícies elevadas: cards, inputs */
+  --ink:    #c8cedb;  /* corpo de texto: cinza frio, não branco */
+  --bright: #eef1f7;  /* títulos */
+  --muted:  #7d8799;  /* labels, secundário */
+  --accent: #ff4d29;  /* laranja-vermelho: cursor, prompt, o que está vivo */
+  --value:  #7aa2f7;  /* segundo sinal: valores, anos, links */
+  --danger: #fb7185;  /* rosa, não vermelho: vermelho se confunde com o accent */
+  --line:   #1d2230;
+  --on-accent: #140600;
+
+  /* Força da camada CRT. Zerar os dois vira um site escuro comum. */
+  --scan-alpha: 0.055;
+  --glow: 0 0 12px;
+
+  /* ---- Tipografia ---- */
+  --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  /* ---- Ritmo ---- */
+  --s1: 0.5rem;
+  --s2: 1rem;
+  --s3: 2rem;
+  --s4: 2.5rem;
+  --s5: 4rem;
+
+  /* A página é mais estreita que a tela de propósito. Container muito
+     mais largo que o próprio texto deixa uma coluna morta na direita de
+     toda seção. Os dois números andam juntos: mexeu num, confere o outro. */
+  --measure: 62rem;
+  --prose:   62ch;   /* medida em fonte mono se conta em caracteres */
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+/* Variante clara: um terminal de papel. Mesmos papéis, com o accent
+   escurecido para continuar passando no contraste. O par mais fraco é o
+   accent sobre papel, 4.7:1. Clarear o accent quebra isso. */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --paper:  #f4f6fa;
+  --panel:  #ffffff;
+  --ink:    #232833;
+  --bright: #0d1119;
+  --muted:  #5f6878;
+  --accent: #c93c12;  /* o mesmo laranja, escurecido para segurar no branco */
+  /* Aqui o --value pode ser azul escuro de verdade. No tema escuro não
+     pode: azul escuro sobre quase preto não se lê. Mesma matiz, luminosidade
+     diferente em cada tema. */
+  --value:  #1d4ed8;
+  --danger: #be123c;
+  --line:   #dde1e9;
+  --on-accent: #ffffff;
+  --scan-alpha: 0.03;
+  --glow: 0 0 0;   /* glow em fundo claro parece borrão, não luz */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.75;   /* mono precisa de mais ar que uma sans */
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
+
+/* ---------- Camada CRT ----------
+   Duas camadas fixas por cima da página, as duas com pointer-events: none
+   para nunca comerem um clique. Fracas de propósito: isso aqui é um
+   portfólio que alguém precisa ler. */
+
+/* Scanlines + vinheta. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, var(--scan-alpha)) 0px,
+      rgba(0, 0, 0, var(--scan-alpha)) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.35) 100%);
+}
+/* Sem vinheta no tema claro: fica com cara de print sujo. */
+:root[data-theme='light'] body::after {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, var(--scan-alpha)) 0px,
+    rgba(0, 0, 0, var(--scan-alpha)) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* A grade fraca de caracteres de um CRT. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ink) 7%, transparent) 1px, transparent 1px);
+  background-size: 3.5rem 100%;
+}
+
+html { scroll-behavior: smooth; }
+
+/* Quem pediu movimento reduzido recebe a página pronta, parada. Esse
+   bloco sozinho manda no arquivo inteiro. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+a { color: var(--value); text-decoration: none; }
+a:hover { color: var(--accent); }
+
+h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright); }
+
+/* Só para leitor de tela, onde a animação mostra texto embaralhado. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skip { position: absolute; left: -9999px; }
+.skip:focus {
+  left: var(--s2); top: var(--s2); z-index: 100;
+  padding: var(--s1) var(--s2);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* O símbolo do prompt, reusado em toda linha "digitada". */
+.prompt {
+  color: var(--accent);
+  text-shadow: var(--glow) color-mix(in srgb, var(--accent) 55%, transparent);
+  user-select: none;
+}
+.path { color: var(--value); }
+
