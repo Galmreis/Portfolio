@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { site, nav, ui, languages } from './content.js'
+import { site, nav, ui, languages, stack, projects, timeline } from './content.js'
+import { coverFor } from './ascii.js'
 import { useActiveSection, Headline, TypeOut, useParallax } from './motion.jsx'
 import Terminal from './Terminal.jsx'
 
@@ -68,6 +69,113 @@ function Hero({ lang }) {
   )
 }
 
+// Cabeçalho de seção: número + nome, usado pelas quatro.
+function Title({ number, children }) {
+  return (
+    <h2 className="section-title">
+      <span className="section-num">{number}</span>
+      <span className="prompt" aria-hidden="true">$</span>
+      {children}
+    </h2>
+  )
+}
+
+function Stack({ lang, t }) {
+  return (
+    <section id="stack" className="section">
+      <Title number="01">{t.stack}</Title>
+      <div className="stack-grid">
+        {stack.map((block) => (
+          <div key={block[lang].group} className="stack-block">
+            <h3>{block[lang].group}</h3>
+            <ul>
+              {block.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function ProjectCover({ project, name }) {
+  if (project.image) {
+    return <img className="project-shot" src={project.image} alt="" loading="lazy" />
+  }
+  return (
+    <pre className="project-cover" aria-hidden="true">{coverFor(name).join('\n')}</pre>
+  )
+}
+
+function Projects({ lang, t }) {
+  return (
+    <section id="projects" className="section">
+      <Title number="02">{t.projects}</Title>
+      <ul className="projects">
+        {projects.map((project) => {
+          const p = project[lang]
+          return (
+            <li key={p.name} className="project">
+              <div className="project-head">
+                <h3>{p.name}</h3>
+                <span className="project-year">{project.year}</span>
+              </div>
+
+              <div className="project-body">
+                <ProjectCover project={project} name={p.name} />
+
+                <div className="project-text">
+                  <p>{p.summary}</p>
+                  <p className="project-learned">
+                    <span className="project-label">{t.learned}</span>
+                    {p.learned}
+                  </p>
+                </div>
+              </div>
+
+              <div className="project-foot">
+                <ul className="tags">
+                  {project.tags.map((tag) => (
+                    <li key={tag}>{tag}</li>
+                  ))}
+                </ul>
+                {project.link && (
+                  <a href={project.link}>{t.live} <span className="arrow">→</span></a>
+                )}
+                {project.repo && (
+                  <a href={project.repo}>{t.code} <span className="arrow">→</span></a>
+                )}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
+
+function Timeline({ lang, t }) {
+  return (
+    <section id="timeline" className="section">
+      <Title number="03">{t.timeline}</Title>
+      <ol className="timeline">
+        {timeline.map((entry) => (
+          <li key={entry.id}>
+            <span className="step-period">{entry[lang].period}</span>
+            <div className="step-body">
+              <h3>{entry[lang].title}</h3>
+              <span className="step-where">{entry[lang].where}</span>
+              <p>{entry[lang].text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}
+
 function Nav({ lang, setLang, theme, flipTheme, t }) {
   const active = useActiveSection(nav)
 
@@ -121,7 +229,12 @@ export default function App() {
   return (
     <>
       <Nav lang={lang} setLang={setLang} theme={theme} flipTheme={flipTheme} t={t} />
-      <Hero lang={lang} />
+      <main>
+        <Hero lang={lang} />
+        <Stack lang={lang} t={t} />
+        <Projects lang={lang} t={t} />
+        <Timeline lang={lang} t={t} />
+      </main>
     </>
   )
 }
