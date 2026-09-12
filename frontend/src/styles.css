@@ -182,3 +182,103 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
 }
 .path { color: var(--value); }
 
+/* ---------- Navegação: a barra de prompt ---------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 0.7rem var(--s3);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.78rem;
+}
+
+.nav-brand { color: var(--accent); text-shadow: var(--glow) color-mix(in srgb, var(--accent) 45%, transparent); }
+.nav-brand::after { content: ':~$'; color: var(--muted); text-shadow: none; }
+.nav-brand:hover { color: var(--accent); }
+
+.nav-links {
+  display: flex;
+  gap: var(--s2);
+  list-style: none;
+  margin: 0 0 0 auto;
+  padding: 0;
+}
+/* Na barra larga os links já são empurrados pela margem deles, então o
+   botão de tema não pode empurrar também. */
+.nav-links + .theme { margin-left: 0; }
+/* Os links se leem como caminhos, por isso o ./ é CSS e não conteúdo. */
+.nav-links a { color: var(--muted); text-transform: lowercase; }
+.nav-links a::before { content: './'; opacity: 0.55; }
+.nav-links a:hover { color: var(--accent); }
+.nav-links a:hover::before { opacity: 1; }
+
+/* Onde você está. Estilizado pelo aria-current e não por uma classe, para
+   o estado acessível e o visível serem o mesmo fato. */
+.nav-links a[aria-current] { color: var(--bright); }
+.nav-links a[aria-current]::before { content: './'; color: var(--accent); opacity: 1; }
+.nav-links a[aria-current]::after {
+  content: '';
+  display: block;
+  height: 1px;
+  background: var(--accent);
+  box-shadow: var(--glow) color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ---------- Botão de tema ---------- */
+/* Se lê como flag de linha de comando, não como interruptor. */
+.theme {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0 0.3rem;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  margin-left: auto;
+  transition: color .15s var(--ease);
+}
+.theme:hover { color: var(--accent); }
+
+/* ---------- Seletor de idioma ---------- */
+
+.lang {
+  display: flex;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+}
+.lang::before, .lang::after { content: '['; color: var(--muted); }
+.lang::after { content: ']'; }
+
+.lang button {
+  font-family: var(--mono);
+  font-size: inherit;
+  padding: 0 0.3rem;
+  min-width: 2.2rem;   /* reserva o estado mais largo: a barra não pula */
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color .15s var(--ease), background-color .15s var(--ease);
+}
+/* Pelo aria-pressed, não por classe: um atributo só, então o estado
+   acessível e o visível não se desencontram. */
+.lang button[aria-pressed='true'] {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+.lang button[aria-pressed='false']:hover { color: var(--accent); }
+
+@media (max-width: 40rem) {
+  .nav { flex-wrap: wrap; }
+  .nav-links { order: 3; width: 100%; margin-left: 0; }
+  /* Os links caíram para a linha de baixo, então os dois botões ficam
+     sozinhos na primeira e o de tema retoma o espaço. */
+  .nav-links + .theme { margin-left: auto; }
+}
+
