@@ -254,6 +254,7 @@ export default function App() {
 
   return (
     <>
+      <a className="skip" href="#top">{t.skip}</a>
       <div className="progress" aria-hidden="true" />
       <Cursor />
       <Nav lang={lang} setLang={setLang} theme={theme} flipTheme={flipTheme} t={t} />
@@ -264,6 +265,9 @@ export default function App() {
         <Timeline lang={lang} t={t} />
         <Contact t={t} />
       </main>
+      <footer className="footer">
+        <p>{site.name} — {t.footer}</p>
+      </footer>
     </>
   )
 }

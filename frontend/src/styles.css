@@ -276,6 +276,41 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
   .nav-links + .theme { margin-left: auto; }
 }
 
+/* ---------- Layout ---------- */
+
+main {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--s3);
+}
+
+.section {
+  padding: var(--s5) 0 var(--s4);
+  scroll-margin-top: 4.5rem;  /* passa por baixo da barra fixa */
+}
+
+/* Título de seção é um comando digitado. */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: var(--s3);
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.section-num {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+/* O traço que corre para a direita, feito separador de terminal. */
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
 
 /* ---------- Hero ---------- */
 
@@ -373,6 +408,16 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
   animation: blink 1s steps(1) infinite;
 }
 @keyframes blink { 50% { opacity: 0; } }
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s3);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+.hero-meta span { color: var(--ink); }
 
 /* ---------- O terminal do hero ---------- */
 
@@ -799,6 +844,28 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
 .form-status[data-status='sent']::before   { content: '✓ '; }
 .form-status[data-status='failed'] { color: var(--danger); }
 .form-status[data-status='failed']::before { content: '✗ '; }
+
+/* ---------- Rodapé: uma status line ---------- */
+
+.footer {
+  margin-top: var(--s4);
+  padding: 0.6rem var(--s3);
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.footer p { margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+/* O ponto de "conectado". Pulsa, discreto. */
+.footer p::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: var(--glow) var(--accent);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.25; } }
 
 /* ---------- Entrada no scroll ---------- */
 /* Posto pelo useReveal. --d é o índice do atraso em cascata. */
