@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Reis">
+  <!-- The site's own prompt, shrunk to 32px: a chevron and the block
+       cursor. Drawn rather than lettered, because a letter at this size
+       turns to mush and every other portfolio favicon is a letter. -->
+  <rect width="32" height="32" rx="4" fill="#0a0c11"/>
+  <path d="M7 10 L13.5 16 L7 22" fill="none" stroke="#c8cedb" stroke-width="3"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="17.5" y="10" width="7.5" height="12" fill="#ff4d29"/>
+</svg>

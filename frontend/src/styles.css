@@ -62,10 +62,7 @@
   --ink:    #232833;
   --bright: #0d1119;
   --muted:  #5f6878;
-  --accent: #c93c12;  /* o mesmo laranja, escurecido para segurar no branco */
-  /* Aqui o --value pode ser azul escuro de verdade. No tema escuro não
-     pode: azul escuro sobre quase preto não se lê. Mesma matiz, luminosidade
-     diferente em cada tema. */
+  --accent: #c93c12;  
   --value:  #1d4ed8;
   --danger: #be123c;
   --line:   #dde1e9;
@@ -88,10 +85,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ---------- Camada CRT ----------
-   Duas camadas fixas por cima da página, as duas com pointer-events: none
-   para nunca comerem um clique. Fracas de propósito: isso aqui é um
-   portfólio que alguém precisa ler. */
+/* ---------- Camada CRT ---------- */
 
 /* Scanlines + vinheta. */
 body::after {
