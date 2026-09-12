@@ -1,0 +1,40 @@
+# Dois jobs porque as duas metades do repo não têm nada a ver uma com a
+# outra, e assim dá para ver qual delas quebrou.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Sem npm ci: o backend não tem dependência nem lockfile.
+      - name: Test
+        working-directory: backend
+        run: npm test
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      # --ignore-scripts: nada aqui precisa de postinstall, e não rodar é
+      # um jeito a menos de uma dependência executar código.
+      - name: Install
+        working-directory: frontend
+        run: npm ci --ignore-scripts
+      # O build é a checagem: quebra em import faltando ou JSX inválido.
+      - name: Build
+        working-directory: frontend
+        run: npm run build
