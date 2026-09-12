@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { site, nav, ui, languages, stack, projects, timeline, contacts } from './content.js'
 import { coverFor } from './ascii.js'
-import { useActiveSection, Headline, TypeOut, useParallax } from './motion.jsx'
+import { useActiveSection, Headline, TypeOut, useParallax, useReveal, useScrollProgress, Scramble, Cursor } from './motion.jsx'
 import Terminal from './Terminal.jsx'
 import ContactForm from './ContactForm.jsx'
 
@@ -76,7 +76,7 @@ function Title({ number, children }) {
     <h2 className="section-title">
       <span className="section-num">{number}</span>
       <span className="prompt" aria-hidden="true">$</span>
-      {children}
+      <Scramble text={children} onHover />
     </h2>
   )
 }
@@ -86,8 +86,8 @@ function Stack({ lang, t }) {
     <section id="stack" className="section">
       <Title number="01">{t.stack}</Title>
       <div className="stack-grid">
-        {stack.map((block) => (
-          <div key={block[lang].group} className="stack-block">
+        {stack.map((block, i) => (
+          <div key={block[lang].group} className="stack-block" data-reveal style={{ '--d': i }}>
             <h3>{block[lang].group}</h3>
             <ul>
               {block.items.map((item) => (
@@ -115,10 +115,10 @@ function Projects({ lang, t }) {
     <section id="projects" className="section">
       <Title number="02">{t.projects}</Title>
       <ul className="projects">
-        {projects.map((project) => {
+        {projects.map((project, i) => {
           const p = project[lang]
           return (
-            <li key={p.name} className="project">
+            <li key={p.name} className="project" data-reveal style={{ '--d': i }}>
               <div className="project-head">
                 <h3>{p.name}</h3>
                 <span className="project-year">{project.year}</span>
@@ -162,8 +162,8 @@ function Timeline({ lang, t }) {
     <section id="timeline" className="section">
       <Title number="03">{t.timeline}</Title>
       <ol className="timeline">
-        {timeline.map((entry) => (
-          <li key={entry.id}>
+        {timeline.map((entry, i) => (
+          <li key={entry.id} data-reveal style={{ '--d': i }}>
             <span className="step-period">{entry[lang].period}</span>
             <div className="step-body">
               <h3>{entry[lang].title}</h3>
@@ -182,7 +182,7 @@ function Contact({ t }) {
     <section id="contact" className="section">
       <Title number="04">{t.contact}</Title>
       <div className="contact-grid">
-        <dl className="contacts">
+        <dl className="contacts" data-reveal>
           {contacts.map((c) => (
             <div key={c.key}>
               <dt>{t[c.key] || c.key}</dt>
@@ -192,7 +192,9 @@ function Contact({ t }) {
             </div>
           ))}
         </dl>
-        <ContactForm t={t} />
+        <div data-reveal style={{ '--d': 1 }}>
+          <ContactForm t={t} />
+        </div>
       </div>
     </section>
   )
@@ -208,7 +210,7 @@ function Nav({ lang, setLang, theme, flipTheme, t }) {
         {nav.map((id) => (
           <li key={id}>
             <a href={`#${id}`} aria-current={active === id ? 'location' : undefined}>
-              {t[id]}
+              <Scramble text={t[id]} />
             </a>
           </li>
         ))}
@@ -245,11 +247,15 @@ export default function App() {
   }
 
   useParallax()
+  useScrollProgress()
+  useReveal([lang])
 
   const t = ui[lang]
 
   return (
     <>
+      <div className="progress" aria-hidden="true" />
+      <Cursor />
       <Nav lang={lang} setLang={setLang} theme={theme} flipTheme={flipTheme} t={t} />
       <main>
         <Hero lang={lang} />

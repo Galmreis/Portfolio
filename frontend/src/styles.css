@@ -16,19 +16,19 @@
      formulário) no mesmo tema que o nosso. */
   color-scheme: dark;
 
-  /* ---- Cores (escuro: o design de verdade) ---- */
-  --paper:  #0a0c11;  /* quase preto puxando azul, para segurar o laranja */
-  --panel:  #10131a;  /* superfícies elevadas: cards, inputs */
-  --ink:    #c8cedb;  /* corpo de texto: cinza frio, não branco */
-  --bright: #eef1f7;  /* títulos */
-  --muted:  #7d8799;  /* labels, secundário */
-  --accent: #ff4d29;  /* laranja-vermelho: cursor, prompt, o que está vivo */
-  --value:  #7aa2f7;  /* segundo sinal: valores, anos, links */
-  --danger: #fb7185;  /* rosa, não vermelho: vermelho se confunde com o accent */
+  /* ---- Cores ---- */
+  --paper:  #0a0c11;  
+  --panel:  #10131a;  
+  --ink:    #c8cedb;  
+  --bright: #eef1f7;  
+  --muted:  #7d8799;  
+  --accent: #ff4d29;  
+  --value:  #7aa2f7;  
+  --danger: #fb7185;  
   --line:   #1d2230;
   --on-accent: #140600;
 
-  /* Força da camada CRT. Zerar os dois vira um site escuro comum. */
+  
   --scan-alpha: 0.055;
   --glow: 0 0 12px;
 
@@ -805,4 +805,63 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.25; color: var(--bright
 .form-status[data-status='sent']::before   { content: '✓ '; }
 .form-status[data-status='failed'] { color: var(--danger); }
 .form-status[data-status='failed']::before { content: '✗ '; }
+
+/* ---------- Entrada no scroll ---------- */
+/* Posto pelo useReveal. --d é o índice do atraso em cascata. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .5s var(--ease), transform .5s var(--ease);
+  transition-delay: calc(var(--d, 0) * 70ms);
+}
+[data-reveal].is-in { opacity: 1; transform: none; }
+
+/* ---------- Cursor customizado ---------- */
+/* Campo de texto fica com o cursor de verdade: não dá para mirar um
+   caret com um bloco decorativo. */
+body.has-cursor,
+body.has-cursor * { cursor: none; }
+body.has-cursor input,
+body.has-cursor textarea { cursor: text; }
+
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 90;
+  pointer-events: none;
+  will-change: transform;
+  /* Posição, tamanho e rotação são UM transform escrito pelo JS. Nunca
+     pôr `rotate:` ou `scale:` aqui: o CSS compõe os dois ANTES do
+     `transform`, gira a própria translação e joga o cursor longe. */
+  transition: opacity .2s linear;
+}
+/* Cursor de terminal é um bloco, então esse também é. */
+.cursor-dot {
+  width: 8px; height: 15px;
+  background: var(--accent);
+  box-shadow: var(--glow) color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.cursor-ring {
+  width: 26px; height: 26px;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  transition: background-color .18s var(--ease), border-color .18s var(--ease), opacity .2s linear;
+}
+.cursor-ring.is-hot {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: var(--accent);
+}
+
+/* ---------- Barra de progresso ---------- */
+/* --progress é escrito pelo useScrollProgress, no motion.jsx. */
+.progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 60;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--progress, 0));
+  background: var(--accent);
+  box-shadow: var(--glow) var(--accent);
+}
 

@@ -137,3 +137,174 @@ export function useActiveSection(ids) {
 
   return active
 }
+
+// Elemento com data-reveal começa escondido (styles.css) e ganha .is-in na
+// primeira vez que entra na tela. IntersectionObserver não custa nada entre
+// as interseções; listener de scroll rodaria a cada pixel.
+export function useReveal(deps) {
+  useEffect(() => {
+    const targets = [...document.querySelectorAll('[data-reveal]:not(.is-in)')]
+    if (!targets.length) return
+
+    if (stillPlease()) {
+      targets.forEach((el) => el.classList.add('is-in'))
+      return
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          entry.target.classList.add('is-in')
+          io.unobserve(entry.target)
+        }
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.15 },
+    )
+    targets.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, deps)
+}
+
+// As letras embaralham antes de assentar. Roda na montagem, e no hover só
+// onde `onHover` pedir.
+const JUNK = '!<>-_\\/[]{}—=+*^?#________'
+
+export function Scramble({ text, className, as: Tag = 'span', onHover = false }) {
+  const [shown, setShown] = useState(text)
+  const frame = useRef(0)
+  const raf = useRef(0)
+
+  function run() {
+    if (stillPlease()) return
+    cancelAnimationFrame(raf.current)
+    frame.current = 0
+
+    const step = () => {
+      frame.current += 1
+      const settled = Math.floor(frame.current / 2.2)
+      let out = ''
+      for (let i = 0; i < text.length; i += 1) {
+        if (text[i] === ' ') out += ' '
+        else if (i < settled) out += text[i]
+        else out += JUNK[Math.floor(Math.random() * JUNK.length)]
+      }
+      setShown(out)
+      if (settled <= text.length) raf.current = requestAnimationFrame(step)
+      else setShown(text)
+    }
+    raf.current = requestAnimationFrame(step)
+  }
+
+  useEffect(() => {
+    setShown(text)
+    run()
+    return () => cancelAnimationFrame(raf.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text])
+
+  return (
+    <Tag className={className} onMouseEnter={onHover ? run : undefined}>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">{shown}</span>
+    </Tag>
+  )
+}
+
+// Cursor customizado: um ponto que segue o ponteiro e um anel que fica um
+// pouco atrás. Tudo escrito num transform só por quadro -- nunca usar
+// `rotate`/`scale` do CSS aqui, porque eles compõem ANTES do `transform`
+// escrito por JS e giram a própria translação, jogando o cursor pra fora.
+export function Cursor() {
+  useEffect(() => {
+    if (stillPlease() || !window.matchMedia('(pointer: fine)').matches) return
+
+    const dot = document.createElement('div')
+    const ring = document.createElement('div')
+    dot.className = 'cursor-dot'
+    ring.className = 'cursor-ring'
+    document.body.append(dot, ring)
+    document.body.classList.add('has-cursor')
+
+    let x = innerWidth / 2
+    let y = innerHeight / 2
+    let rx = x
+    let ry = y
+    let scale = 1
+    let wantScale = 1
+    let spin = 0
+    let wantSpin = 0
+    let raf = 0
+
+    const onMove = (e) => {
+      x = e.clientX
+      y = e.clientY
+      const el = e.target instanceof Element ? e.target : null
+      const hot = el?.closest('a, button, .project, .stack-block, .contacts > div')
+      wantScale = hot ? 1.8 : 1
+      wantSpin = hot ? 45 : 0
+    }
+
+    const onLeave = () => { dot.style.opacity = ring.style.opacity = '0' }
+    const onEnter = () => { dot.style.opacity = ring.style.opacity = '1' }
+
+    const loop = () => {
+      rx += (x - rx) * 0.18
+      ry += (y - ry) * 0.18
+      scale += (wantScale - scale) * 0.2
+      spin += (wantSpin - spin) * 0.2
+
+      dot.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`
+      ring.style.transform =
+        `translate(${rx}px, ${ry}px) translate(-50%, -50%) rotate(${spin}deg) scale(${scale})`
+      ring.classList.toggle('is-hot', wantScale > 1)
+
+      raf = requestAnimationFrame(loop)
+    }
+
+    addEventListener('pointermove', onMove)
+    document.addEventListener('pointerleave', onLeave)
+    document.addEventListener('pointerenter', onEnter)
+    raf = requestAnimationFrame(loop)
+
+    return () => {
+      removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerleave', onLeave)
+      document.removeEventListener('pointerenter', onEnter)
+      cancelAnimationFrame(raf)
+      dot.remove()
+      ring.remove()
+      document.body.classList.remove('has-cursor')
+    }
+  }, [])
+
+  return null
+}
+
+// Escreve um número de 0 a 1 numa variável CSS e deixa o CSS desenhar a
+// barra de progresso.
+export function useScrollProgress() {
+  useEffect(() => {
+    const el = document.documentElement
+    let ticking = false
+
+    const update = () => {
+      const max = el.scrollHeight - innerHeight
+      el.style.setProperty('--progress', max > 0 ? el.scrollTop / max : 0)
+      ticking = false
+    }
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(update)
+    }
+
+    update()
+    addEventListener('scroll', onScroll, { passive: true })
+    addEventListener('resize', onScroll)
+    return () => {
+      removeEventListener('scroll', onScroll)
+      removeEventListener('resize', onScroll)
+    }
+  }, [])
+}
